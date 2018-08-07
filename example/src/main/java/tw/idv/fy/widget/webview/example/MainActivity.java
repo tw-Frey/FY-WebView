@@ -31,7 +31,8 @@ public class MainActivity extends AppCompatActivity {
 
         Fragment f = getSupportFragmentManager().findFragmentById(R.id.fragment);
         if (f instanceof WebViewSupportFragment) {
-            ((WebViewSupportFragment) f).getWebView().loadUrl("http://www.yahoo.com.tw");
+            //((WebViewSupportFragment) f).getWebView().loadUrl("http://www.yahoo.com.tw");
+            ((WebViewSupportFragment) f).getWebView().loadUrl("file:///android_asset/file.html");
         }
     }
 
