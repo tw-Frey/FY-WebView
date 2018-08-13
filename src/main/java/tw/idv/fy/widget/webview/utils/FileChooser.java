@@ -20,6 +20,8 @@ import android.widget.Toast;
 @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
 public class FileChooser extends Activity {
 
+    private static final boolean ALLOW_MULTIPLE_FILES = false; // 不處理 Multiple
+
     private static final String EXTRA_KEY_RESULT_MESSENGER = "result_messenger";
     private static final String EXTRA_KEY_RESULT_FILES_URI = "result_files_uri";
     private static final String EXTRA_KEY_OPEN_FILE_INTENT = "open_file_intent";
@@ -78,7 +80,11 @@ public class FileChooser extends Activity {
     public static boolean Show(WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams) {
         if (fileChooserParams.isCaptureEnabled()) {
             Toast.makeText(webView.getContext(), "婉拒 capture", Toast.LENGTH_SHORT).show();
-            return false; // 本輯不處理 Capture
+            return false; // 本輯不處理 Capture 或 Multiple
+        }
+        if (!ALLOW_MULTIPLE_FILES && fileChooserParams.getMode() == WebChromeClient.FileChooserParams.MODE_OPEN_MULTIPLE) {
+            Toast.makeText(webView.getContext(), "婉拒 multiple", Toast.LENGTH_SHORT).show();
+            return false; // 本輯不處理 Multiple
         }
         Context context = webView.getContext();
         Messenger result_messenger = new Messenger(new Handler(msg -> {
@@ -94,6 +100,18 @@ public class FileChooser extends Activity {
         }));
         try {
             Intent open_file_intent = fileChooserParams.createIntent();
+            /*
+                強制轉成 ACTION_OPEN_DOCUMENT
+                使用 ACTION_GET_CONTENT 有點問題
+                因為
+                (1) 要當下讀檔
+                (2) 似乎不能用 FileReader
+                (3) 似乎不能選太多
+             */
+            open_file_intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+            /*
+                判斷 讀取 mime type
+             */
             String[] accept_Types = fileChooserParams.getAcceptTypes();
             if (accept_Types != null && accept_Types.length < 2) { // 有的機種會黏在一起
                 accept_Types = accept_Types[0].split(",");
@@ -105,10 +123,16 @@ public class FileChooser extends Activity {
                 open_file_intent.setType("*/*")
                         .putExtra(Intent.EXTRA_MIME_TYPES, accept_Types);
             }
+            /*
+                判斷是否多選 (目前不支援)
+             */
             if (fileChooserParams.getMode() == WebChromeClient.FileChooserParams.MODE_OPEN_MULTIPLE) {
                 open_file_intent
-                        .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+                        .putExtra(Intent.EXTRA_ALLOW_MULTIPLE, ALLOW_MULTIPLE_FILES);
             }
+            /*
+                開啟系統檔案選擇器
+             */
             context.startActivity(new Intent(context, FileChooser.class)
                     .putExtra(EXTRA_KEY_OPEN_FILE_INTENT, open_file_intent)
                     .putExtra(EXTRA_KEY_RESULT_MESSENGER, result_messenger)
