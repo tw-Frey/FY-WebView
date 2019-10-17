@@ -9,7 +9,10 @@ import android.view.ViewGroup
 import android.webkit.JsResult
 import android.webkit.WebView
 import android.widget.ProgressBar
+import androidx.annotation.CallSuper
 import androidx.appcompat.app.AlertDialog
+import tw.idv.fy.widget.webview.base.AbWebChromeClient
+import tw.idv.fy.widget.webview.base.AbWebViewClient
 import tw.idv.fy.widget.webview.base.BaseWebViewSupportFragmentX
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -38,13 +41,16 @@ open class WebViewSupportFragmentX : BaseWebViewSupportFragmentX() {
         getWebView()?.apply(::onSettings)
     }
 
-    fun getWebViewClientInstance(): WebViewClient = WebViewClient()
+    @CallSuper
+    open fun getWebViewClientInstance(): AbWebViewClient = WebViewClient()
 
-    fun getWebChromeClientInstance(): WebChromeClient = WebChromeClient()
+    @CallSuper
+    open fun getWebChromeClientInstance(): AbWebChromeClient = WebChromeClient()
 
     /**
      *  僅先預設幾個設定
      */
+    @CallSuper
     protected fun onSettings(webView: WebView) {
         with(webView) {
             webViewClient = getWebViewClientInstance()
@@ -103,9 +109,9 @@ open class WebViewSupportFragmentX : BaseWebViewSupportFragmentX() {
         }
     }
 
-    open inner class WebViewClient : android.webkit.WebViewClient()
+    private inner class WebViewClient : AbWebViewClient()
 
-    open inner class WebChromeClient: android.webkit.WebChromeClient() {
+    private inner class WebChromeClient: AbWebChromeClient() {
 
         override fun onProgressChanged(view: WebView?, newProgress: Int) {
             super.onProgressChanged(view, newProgress)
@@ -116,24 +122,24 @@ open class WebViewSupportFragmentX : BaseWebViewSupportFragmentX() {
             }
         }
 
-        override fun onJsAlert(view: WebView, url: String?, message: String?, result: JsResult?): Boolean {
-            AlertDialog.Builder(view.context)
-                       .setMessage(message)
-                       .setCancelable(false)
-                       .setPositiveButton(android.R.string.ok) { _, _ -> result?.confirm() }
-                       .show()
-            return true
-        }
+        override fun onJsAlert(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean =
+                view?.apply {
+                    AlertDialog.Builder(context)
+                            .setMessage(message)
+                            .setCancelable(false)
+                            .setPositiveButton(android.R.string.ok) { _, _ -> result?.confirm() }
+                            .show()
+                } != null ?: super.onJsAlert(view, url, message, result)
 
-        override fun onJsConfirm(view: WebView, url: String?, message: String?, result: JsResult?): Boolean {
-            AlertDialog.Builder(view.context)
-                       .setMessage(message)
-                       .setCancelable(false)
-                       .setPositiveButton(android.R.string.ok) { _, _ -> result?.confirm() }
-                       .setNegativeButton(android.R.string.no) { _, _ -> result?.cancel()  }
-                       .show()
-            return true
-        }
+        override fun onJsConfirm(view: WebView?, url: String?, message: String?, result: JsResult?): Boolean =
+                view?.apply {
+                    AlertDialog.Builder(view.context)
+                            .setMessage(message)
+                            .setCancelable(false)
+                            .setPositiveButton(android.R.string.ok) { _, _ -> result?.confirm() }
+                            .setNegativeButton(android.R.string.no) { _, _ -> result?.cancel()  }
+                            .show()
+                } != null ?: super.onJsConfirm(view, url, message, result)
     }
 
     private fun View.postDelayed(delayMillis: Long, block: View.() -> Unit) =
