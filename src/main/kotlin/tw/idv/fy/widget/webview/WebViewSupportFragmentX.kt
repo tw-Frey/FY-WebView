@@ -25,8 +25,7 @@ open class WebViewSupportFragmentX : BaseWebViewSupportFragmentX() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             runCatching {
-                inflater.inflate(R.layout.tw_idv_fy_widget_webview_layout_webview_fragment, container, false)
-                        ?.run { this as? ViewGroup }
+                (inflater.inflate(R.layout.tw_idv_fy_widget_webview_layout_webview_fragment, container, false) as? ViewGroup)
                         ?.apply {
                             addView(super.onCreateView(inflater, container, savedInstanceState), 0)
                             mProgressBar = findViewById(android.R.id.progress)
@@ -82,7 +81,7 @@ open class WebViewSupportFragmentX : BaseWebViewSupportFragmentX() {
 
                 //loadWithOverviewMode = true // default: false
                 useWideViewPort = false
-                javaScriptCanOpenWindowsAutomatically = true // default: false
+                //javaScriptCanOpenWindowsAutomatically = true // default: false; OpenWindowsAutomatically mean UN-requested popup
 
                 /*
                     跟 http 和 https 混合資源有關
