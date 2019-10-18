@@ -2,12 +2,14 @@ package tw.idv.fy.widget.webview.base
 
 import android.graphics.Bitmap
 import android.net.http.SslError
+import android.os.Build
 import android.os.Message
 import android.view.KeyEvent
 import android.webkit.*
+import androidx.annotation.RequiresApi
 
 @Suppress("DEPRECATION")
-open class AbWebViewClient(private val delegate: AbWebViewClient? = null) : WebViewClient() {
+open class AbWebViewClient(private val delegate: WebViewClient? = null) : WebViewClient() {
 
     override fun onPageFinished(view: WebView?, url: String?) {
         delegate?.onPageFinished(view, url)
@@ -26,6 +28,7 @@ open class AbWebViewClient(private val delegate: AbWebViewClient? = null) : WebV
             delegate?.shouldOverrideKeyEvent(view, event)
                     ?: super.shouldOverrideKeyEvent(view, event)
 
+    @RequiresApi(Build.VERSION_CODES.O_MR1)
     override fun onSafeBrowsingHit(view: WebView?, request: WebResourceRequest?, threatType: Int, callback: SafeBrowsingResponse?) {
         delegate?.onSafeBrowsingHit(view, request, threatType, callback)
                 ?: super.onSafeBrowsingHit(view, request, threatType, callback)
@@ -41,11 +44,13 @@ open class AbWebViewClient(private val delegate: AbWebViewClient? = null) : WebV
                 ?: super.onReceivedError(view, errorCode, description, failingUrl)
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onReceivedError(view: WebView?, request: WebResourceRequest?, error: WebResourceError?) {
         delegate?.onReceivedError(view, request, error)
                 ?: super.onReceivedError(view, request, error)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onRenderProcessGone(view: WebView?, detail: RenderProcessGoneDetail?): Boolean =
             delegate?.onRenderProcessGone(view, detail)
                     ?: super.onRenderProcessGone(view, detail)
@@ -55,6 +60,7 @@ open class AbWebViewClient(private val delegate: AbWebViewClient? = null) : WebV
                 ?: super.onReceivedLoginRequest(view, realm, account, args)
     }
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onReceivedHttpError(view: WebView?, request: WebResourceRequest?, errorResponse: WebResourceResponse?) {
         delegate?.onReceivedHttpError(view, request, errorResponse)
                 ?: super.onReceivedHttpError(view, request, errorResponse)
@@ -74,10 +80,12 @@ open class AbWebViewClient(private val delegate: AbWebViewClient? = null) : WebV
             delegate?.shouldOverrideUrlLoading(view, url)
                     ?: super.shouldOverrideUrlLoading(view, url)
 
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun shouldOverrideUrlLoading(view: WebView?, request: WebResourceRequest?): Boolean =
             delegate?.shouldOverrideUrlLoading(view, request)
                     ?: super.shouldOverrideUrlLoading(view, request)
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onPageCommitVisible(view: WebView?, url: String?) {
         delegate?.onPageCommitVisible(view, url)
                 ?: super.onPageCommitVisible(view, url)

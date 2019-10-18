@@ -1,6 +1,8 @@
 package tw.idv.fy.widget.webview
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -140,6 +142,18 @@ open class WebViewSupportFragmentX : BaseWebViewSupportFragmentX() {
                             .setNegativeButton(android.R.string.no) { _, _ -> result?.cancel()  }
                             .show()
                 } != null ?: super.onJsConfirm(view, url, message, result)
+
+        /**
+         * 因為 部分 Android WebView 對於 getDefaultVideoPoster 回傳 null 沒有處理 導致 crash
+         *
+         * 所以有需要的話覆寫他
+         *
+         * https://blog.csdn.net/Ltp_zy/article/details/80580446
+         */
+        override fun getDefaultVideoPoster(): Bitmap? = super.getDefaultVideoPoster()
+                ?: runCatching {
+                    BitmapFactory.decodeResource(resources, android.R.drawable.sym_def_app_icon)
+                }.getOrNull()
     }
 
     private fun View.postDelayed(delayMillis: Long, block: View.() -> Unit) =

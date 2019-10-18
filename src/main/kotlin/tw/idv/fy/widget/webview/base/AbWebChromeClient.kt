@@ -7,7 +7,7 @@ import android.view.View
 import android.webkit.*
 
 @Suppress("DEPRECATION", "UsePropertyAccessSyntax")
-open class AbWebChromeClient(private val delegate: AbWebChromeClient? = null) : WebChromeClient() {
+open class AbWebChromeClient(private val delegate: WebChromeClient? = null) : WebChromeClient() {
 
     override fun onRequestFocus(view: WebView?) {
         delegate?.onRequestFocus(view)
