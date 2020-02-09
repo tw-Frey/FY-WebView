@@ -1,5 +1,7 @@
 package tw.idv.fy.widget.webview.base
 
+import android.content.res.Configuration
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -24,11 +26,18 @@ open class BaseWebViewSupportFragmentX : Fragment() {
      */
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View? =
-            WebView(context).apply {
-                mWebView?.destroy()
-                mWebView = this
-                mIsWebViewAvailable = true
-            }
+            inflater.context
+                    .run {
+                        when (Build.VERSION.SDK_INT) {
+                            in 21..22 -> createConfigurationContext(Configuration())
+                            else -> this
+                        }
+                    }
+                    .run(::WebView).apply {
+                        mWebView?.destroy()
+                        mWebView = this
+                        mIsWebViewAvailable = true
+                    }
 
     /**
      * Called when the fragment is visible to the user and actively running. Resumes the WebView.
